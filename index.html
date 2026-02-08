@@ -35,13 +35,23 @@
             { q: "De (dronken) _____ bestuurder weigerde de blaastest.", a: "dronken" },
             { q: "Deze getuigenverklaring is (betrouwbaar) _____ dan de vorige.", a: "betrouwbaarder" },
             { q: "Het onderzoek duurt (lang) _____ dan we dachten.", a: "langer" },
+            { q: "Het was op dat moment het (druk) _____ punt van de dag.", a: "drukst" },
             { q: "De verdachte bleef (rustig) _____ onder de verhoren.", a: "rustig" },
             { q: "Deze overtreding is even (strafbaar) _____ als die andere.", a: "strafbaar" },
             { q: "Het is de (groot) _____ inbeslagname van dit jaar.", a: "grootste" },
             { q: "De agent trad (kordaat) _____ op bij de aanhouding.", a: "kordaat" },
             { q: "De weg was (glad) _____ dan de stoep.", a: "gladder" },
             { q: "Hij reed in een (gestolen) _____ voertuig.", a: "gestolen" },
-            { q: "De situatie werd (gevaarlijk) _____ naarmate de groep groeide.", a: "gevaarlijker" }
+            { q: "De situatie werd (gevaarlijk) _____ naarmate de groep groeide.", a: "gevaarlijker" },
+            { q: "Het verhoor verliep (soepel) _____ dan verwacht.", a: "soepeler" },
+            { q: "De (bevoegd) _____ ambtenaar tekende het document.", a: "bevoegde" },
+            { q: "Er is (weinig) _____ bewijs dan in de eerdere zaak.", a: "minder" },
+            { q: "Dit is de (hoog) _____ boete voor deze overtreding.", a: "hoogste" },
+            { q: "De (jong) _____ verdachte werd direct overgebracht.", a: "jonge" },
+            { q: "Zijn verklaring was (duidelijk) _____ als die van de getuige.", a: "duidelijker" },
+            { q: "Het was de (koud) _____ nacht van de surveillance.", a: "koudste" },
+            { q: "De (vals) _____ aangifte leidde tot een onderzoek.", a: "valse" },
+            { q: "De camera's gaven een (scherp) _____ beeld dan gisteren.", a: "scherper" }
         ];
 
         window.onload = () => {
@@ -93,7 +103,7 @@
                 score: `${correct}/${total}`,
                 zinnen: [document.getElementById('z1').value, document.getElementById('z2').value, document.getElementById('z3').value],
                 time: new Date().toLocaleTimeString()
-            }).then(() => alert(`Opgeslagen. Score op automatische delen: ${correct}/${total}.`));
+            }).then(() => alert(`Resultaten opgeslagen. Score: ${correct}/${total}.`));
         };
 
         window.loadResults = (c) => {
@@ -101,38 +111,42 @@
             onValue(ref(db, 'lessen/' + c), (s) => {
                 const d = s.val();
                 const resDiv = document.getElementById('results');
-                resDiv.innerHTML = d ? "" : "Geen data beschikbaar voor deze klas.";
+                resDiv.innerHTML = d ? "" : "Geen data beschikbaar.";
                 for(let k in d) {
-                    resDiv.innerHTML += `<div class="res-card"><strong>Naam: ${d[k].student}</strong> (Score: ${d[k].score})<br>
-                    Stellend: ${d[k].zinnen[0]}<br>Vergrotend: ${d[k].zinnen[1]}<br>Overtreffend: ${d[k].zinnen[2]}</div>`;
+                    resDiv.innerHTML += `<div class="res-card"><strong>Student: ${d[k].student}</strong> (${d[k].score})<br>
+                    1: ${d[k].zinnen[0]}<br>2: ${d[k].zinnen[1]}<br>3: ${d[k].zinnen[2]}</div>`;
                 }
             });
         };
 
         window.hardReset = () => {
             const c = document.getElementById('viewing').innerText;
-            if(c !== "..." && confirm(`Weet u zeker dat u de data van klas ${c} wilt verwijderen?`)) {
-                remove(ref(db, 'lessen/' + c)).then(() => alert(`Data klas ${c} verwijderd.`));
+            if(c !== "..." && confirm(`Data van klas ${c} definitief verwijderen?`)) {
+                remove(ref(db, 'lessen/' + c));
             }
         };
     </script>
     <style>
         body { font-family: 'Arial', sans-serif; background: #f0f0f0; padding: 20px; color: #333; }
-        .container { max-width: 900px; margin: auto; background: #fff; padding: 30px; border: 1px solid #333; }
+        .container { max-width: 950px; margin: auto; background: #fff; padding: 30px; border: 1px solid #333; }
         h1, h2 { background: #003366; color: #fff; padding: 10px; font-size: 1.2rem; text-transform: uppercase; margin-top: 30px; }
         h1:first-child { margin-top: 0; }
-        .uitleg { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; background: #f9f9f9; line-height: 1.6; }
+        
+        .header-flex { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 20px; }
+        .uitleg { flex: 1; border: 1px solid #ccc; padding: 15px; background: #f9f9f9; line-height: 1.6; }
+        .instruction-gif { width: 250px; height: auto; border: 1px solid #ccc; }
+
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #999; padding: 8px; text-align: left; }
         th { background: #eee; }
         input[type="text"] { padding: 6px; border: 1px solid #ccc; }
-        .context-input { width: 150px; }
+        .context-input { width: 160px; }
         .full-input { width: 100%; box-sizing: border-box; margin-bottom: 10px; }
-        .sentence-row { margin-bottom: 10px; }
+        .sentence-row { margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
         .correct { border: 2px solid green !important; background: #f0fff0; }
         .incorrect { border: 2px solid red !important; background: #fff0f0; }
         .fixed-word { font-weight: bold; background: #eee; text-align: center; }
-        .res-card { border-bottom: 1px solid #003366; padding: 15px; background: #fff; }
+        .res-card { border-bottom: 1px solid #003366; padding: 15px; }
         button { background: #003366; color: white; border: none; padding: 10px 15px; cursor: pointer; font-weight: bold; }
         .btn-reset { background: #900; float: right; }
         .nav-btn { background: #555; margin-right: 5px; }
@@ -140,17 +154,20 @@
 </head>
 <body>
 <div class="container">
-    <h1>Bijvoeglijke naamwoorden en trappen van vergelijking</h1>
+    <h1>Taalvaardigheid: Bijvoeglijke naamwoorden</h1>
     
-    <div class="uitleg">
-        <strong>Instructie (MBO 3):</strong><br>
-        In een proces-verbaal is nauwkeurige taal noodzakelijk. <br>
-        - <strong>Stellende trap:</strong> Basisvorm. Gebruik <em>als</em> bij gelijkheid (bijv. even groot als).<br>
-        - <strong>Vergrotende trap:</strong> Basisvorm + er. Gebruik <em>dan</em> bij verschil (bijv. groter dan).<br>
-        - <strong>Overtreffende trap:</strong> Basisvorm + st (bijv. de grootste).
+    <div class="header-flex">
+        <div class="uitleg">
+            <strong>Instructie:</strong><br>
+            Nauwkeurig taalgebruik is essentieel in het proces-verbaal. <br>
+            - <strong>Stellende trap:</strong> Basisvorm. Gebruik <em>als</em> bij gelijkheid.<br>
+            - <strong>Vergrotende trap:</strong> Basisvorm + er. Gebruik <em>dan</em> bij verschil.<br>
+            - <strong>Overtreffende trap:</strong> Basisvorm + st (de hoogste graad).
+        </div>
+        <img src="1740073406664.gif" alt="Instructie Illustratie" class="instruction-gif">
     </div>
 
-    <div style="margin-bottom:20px;">
+    <div style="margin-bottom:20px; border-bottom: 2px solid #003366; padding-bottom: 20px;">
         Naam student: <input type="text" id="studentName">
         Klas: <select id="selectedClass">
             <option value="Delta">Delta</option>
@@ -167,22 +184,22 @@
         <tbody id="trap-body"></tbody>
     </table>
 
-    <h2>Onderdeel 2: Contextuele oefening</h2>
+    <h2>Onderdeel 2: Contextuele oefening (20 zinnen)</h2>
     <div id="context-zinnen"></div>
 
     <h2>Onderdeel 3: Eigen praktijkvoorbeelden</h2>
-    <p>1. Stel een zin op met een <strong>stellende trap</strong> en het correcte gebruik van <em>als</em> of <em>dan</em>:</p>
+    <p>1. Zin met stellende trap + <em>als</em> of <em>dan</em>:</p>
     <input type="text" id="z1" class="full-input">
     
-    <p>2. Stel een zin op met een <strong>vergrotende trap</strong> en het correcte gebruik van <em>als</em> of <em>dan</em>:</p>
+    <p>2. Zin met vergrotende trap + <em>als</em> of <em>dan</em>:</p>
     <input type="text" id="z2" class="full-input">
     
-    <p>3. Stel een zin op met de <strong>overtreffende trap</strong>:</p>
+    <p>3. Zin met de overtreffende trap:</p>
     <input type="text" id="z3" class="full-input">
 
-    <button onclick="checkAndSave()">Resultaten controleren en opslaan</button>
+    <button onclick="checkAndSave()">Controleren en opslaan</button>
 
-    <hr style="margin:50px 0; border: 0; border-top: 1px solid #000;">
+    <hr style="margin:50px 0; border: 0; border-top: 2px solid #003366;">
     
     <h2>Docentenoverzicht: <span id="viewing">...</span></h2>
     <div style="margin-bottom: 15px;">
@@ -193,7 +210,7 @@
         <button class="nav-btn" onclick="loadResults('Mike')">MIKE</button>
     </div>
     
-    <div id="results" style="background:#eee; padding:10px; margin-top:10px; border: 1px solid #ccc; min-height: 50px;"></div>
+    <div id="results" style="background:#eee; padding:10px; margin-top:10px; border: 1px solid #ccc;"></div>
     
     <button class="btn-reset" onclick="hardReset()">Wis data geselecteerde klas</button>
     <div style="clear:both;"></div>
