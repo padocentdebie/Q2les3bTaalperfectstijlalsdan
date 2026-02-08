@@ -52,7 +52,6 @@
             { q: "Het was de (koud) _____ nacht van de surveillance.", a: "koudste" },
             { q: "De (vals) _____ aangifte leidde tot een onderzoek.", a: "valse" },
             { q: "De camera's gaven een (scherp) _____ beeld dan gisteren.", a: "scherper" },
-            // 5 nieuwe zinnen met de 'het-woord + e' regel
             { q: "Het (snel) _____ voertuig haalde de patrouillewagen in.", a: "snelle" },
             { q: "Wij troffen het (gevaarlijk) _____ voorwerp aan in de kofferbak.", a: "gevaarlijke" },
             { q: "Het (vers) _____ spoor leidde naar de achtertuin.", a: "verse" },
@@ -104,9 +103,14 @@
             push(ref(db, 'lessen/' + className), {
                 student: firstName,
                 score: `${correct}/${total}`,
-                zinnen: [document.getElementById('z1').value, document.getElementById('z2').value, document.getElementById('z3').value],
+                zinnen: [
+                    document.getElementById('z1').value, 
+                    document.getElementById('z2').value, 
+                    document.getElementById('z3').value,
+                    document.getElementById('z4').value
+                ],
                 timestamp: Date.now()
-            }).then(() => alert(`Opgeslagen. Score: ${correct}/${total}.`));
+            }).then(() => alert(`Opgeslagen. Score op de automatische delen: ${correct}/${total}.`));
         };
 
         window.loadResults = (c) => {
@@ -120,7 +124,8 @@
                         <strong>Voornaam: ${d[k].student}</strong> (Score: ${d[k].score})<br>
                         <em>1. Stellend:</em> ${d[k].zinnen[0]}<br>
                         <em>2. Vergrotend:</em> ${d[k].zinnen[1]}<br>
-                        <em>3. Overtreffend:</em> ${d[k].zinnen[2]}
+                        <em>3. Overtreffend:</em> ${d[k].zinnen[2]}<br>
+                        <em>4. Het-woord + e:</em> ${d[k].zinnen[3]}
                     </div>`;
                 }
             });
@@ -138,7 +143,7 @@
         .container { max-width: 950px; margin: auto; background: #fff; padding: 30px; border: 1px solid #333; }
         h1, h2 { background: #003366; color: #fff; padding: 10px; font-size: 1.2rem; text-transform: uppercase; margin-top: 30px; }
         .header-flex { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 20px; }
-        .uitleg { flex: 1; border: 1px solid #ccc; padding: 15px; background: #f9f9f9; font-size: 0.95rem; }
+        .uitleg { flex: 1; border: 1px solid #ccc; padding: 15px; background: #f9f9f9; font-size: 0.95rem; line-height: 1.5; }
         .instruction-gif { width: 250px; height: auto; border: 1px solid #ccc; }
         table { width: 100%; border-collapse: collapse; }
         th, td { border: 1px solid #999; padding: 8px; text-align: left; }
@@ -148,10 +153,11 @@
         .correct { border: 2px solid green !important; background: #f0fff0; }
         .incorrect { border: 2px solid red !important; background: #fff0f0; }
         .fixed-word { font-weight: bold; background: #eee; text-align: center; }
-        .res-card { border-bottom: 1px solid #003366; padding: 15px; }
+        .res-card { border-bottom: 1px solid #003366; padding: 15px; background: #fff; }
         button { background: #003366; color: white; border: none; padding: 10px 15px; cursor: pointer; font-weight: bold; }
         .btn-reset { background: #900; float: right; }
         .nav-btn { background: #555; margin-right: 5px; margin-bottom: 5px; }
+        .sentence-row { margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -185,26 +191,33 @@
     <h2>Onderdeel 2: Contextuele oefening (25 zinnen)</h2>
     <div id="context-zinnen"></div>
 
-    <h2>Onderdeel 3: Eigen praktijkvoorbeelden</h2>
-    <p>1. Zin met stellende trap + <em>als</em> of <em>dan</em>:</p>
-    <input type="text" id="z1" class="full-input">
-    <p>2. Zin met vergrotende trap + <em>als</em> of <em>dan</em>:</p>
-    <input type="text" id="z2" class="full-input">
-    <p>3. Zin met overtreffende trap:</p>
-    <input type="text" id="z3" class="full-input">
+    <h2>Onderdeel 3: Eigen praktijkvoorbeelden (PV-zinnen)</h2>
+    <p>1. Zin met <strong>stellende trap</strong> en het correcte gebruik van <em>als</em> of <em>dan</em>:</p>
+    <input type="text" id="z1" class="full-input" placeholder="Bijv. De verdachte was even groot als de getuige.">
+    
+    <p>2. Zin met <strong>vergrotende trap</strong> en het correcte gebruik van <em>als</em> of <em>dan</em>:</p>
+    <input type="text" id="z2" class="full-input" placeholder="Bijv. De blauwe auto reed harder dan de patrouillewagen.">
+    
+    <p>3. Zin met de <strong>overtreffende trap</strong>:</p>
+    <input type="text" id="z3" class="full-input" placeholder="Bijv. Dit was de gevaarlijkste situatie van de avond.">
 
-    <button onclick="checkAndSave()">Controleren en opslaan</button>
+    <p>4. Zin met een bijvoeglijk naamwoord voor een <strong>het-woord</strong> (buigings-e):</p>
+    <input type="text" id="z4" class="full-input" placeholder="Bijv. Wij zagen het brandende voertuig in de berm staan.">
+
+    <button onclick="checkAndSave()">Resultaten controleren en opslaan</button>
 
     <hr style="margin:50px 0; border-top: 2px solid #003366;">
     
-    <h2>Docentenoverzicht: <span id="viewing">...</span></h2>
-    <button class="nav-btn" onclick="loadResults('Delta')">DELTA</button>
-    <button class="nav-btn" onclick="loadResults('Echo')">ECHO</button>
-    <button class="nav-btn" onclick="loadResults('Foxtrot')">FOXTROT</button>
-    <button class="nav-btn" onclick="loadResults('Lima')">LIMA</button>
-    <button class="nav-btn" onclick="loadResults('Mike')">MIKE</button>
+    <h2>Docentenoverzicht (Chronologisch): <span id="viewing">...</span></h2>
+    <div style="margin-bottom: 15px;">
+        <button class="nav-btn" onclick="loadResults('Delta')">DELTA</button>
+        <button class="nav-btn" onclick="loadResults('Echo')">ECHO</button>
+        <button class="nav-btn" onclick="loadResults('Foxtrot')">FOXTROT</button>
+        <button class="nav-btn" onclick="loadResults('Lima')">LIMA</button>
+        <button class="nav-btn" onclick="loadResults('Mike')">MIKE</button>
+    </div>
     
-    <div id="results" style="background:#eee; padding:10px; margin-top:10px;"></div>
+    <div id="results" style="background:#eee; padding:10px; margin-top:10px; border: 1px solid #ccc;"></div>
     <button class="btn-reset" onclick="hardReset()">Wis data geselecteerde klas</button>
     <div style="clear:both;"></div>
 </div>
