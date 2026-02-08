@@ -35,7 +35,7 @@
             { q: "De (dronken) _____ bestuurder weigerde de blaastest.", a: "dronken" },
             { q: "Deze getuigenverklaring is (betrouwbaar) _____ dan de vorige.", a: "betrouwbaarder" },
             { q: "Het onderzoek duurt (lang) _____ dan we dachten.", a: "langer" },
-            { q: "Het was op dat moment het (druk) _____ moment van de dag.", a: "drukste" },
+            { q: "Het was op dat moment het (druk) _____ punt van de dag.", a: "drukst" },
             { q: "De verdachte bleef (rustig) _____ onder de verhoren.", a: "rustig" },
             { q: "Deze overtreding is even (strafbaar) _____ als die andere.", a: "strafbaar" },
             { q: "Het is de (groot) _____ inbeslagname van dit jaar.", a: "grootste" },
@@ -83,8 +83,8 @@
 
         window.checkAndSave = function() {
             const className = document.getElementById('selectedClass').value;
-            const studentName = document.getElementById('studentName').value;
-            if(!className || !studentName) { alert("Voornaam en klas zijn verplicht."); return; }
+            const firstName = document.getElementById('firstName').value;
+            if(!className || !firstName) { alert("Voornaam en klas zijn verplicht."); return; }
 
             let correct = 0;
             let total = 0;
@@ -96,7 +96,7 @@
             });
 
             push(ref(db, 'lessen/' + className), {
-                student: studentName,
+                student: firstName,
                 score: `${correct}/${total}`,
                 zinnen: [document.getElementById('z1').value, document.getElementById('z2').value, document.getElementById('z3').value],
                 timestamp: Date.now()
@@ -109,10 +109,9 @@
                 const d = s.val();
                 const resDiv = document.getElementById('results');
                 resDiv.innerHTML = d ? "" : "Geen data beschikbaar voor deze klas.";
-                // Chronologische volgorde aanhouden
                 for(let k in d) {
                     resDiv.innerHTML += `<div class="res-card">
-                        <strong>${d[k].student}</strong> (Score: ${d[k].score})<br>
+                        <strong>Voornaam: ${d[k].student}</strong> (Score: ${d[k].score})<br>
                         <em>1. Stellend:</em> ${d[k].zinnen[0]}<br>
                         <em>2. Vergrotend:</em> ${d[k].zinnen[1]}<br>
                         <em>3. Overtreffend:</em> ${d[k].zinnen[2]}
@@ -164,7 +163,7 @@
     </div>
 
     <div style="margin-bottom:20px; border-bottom: 2px solid #003366; padding-bottom: 20px;">
-        Naam: <input type="text" id="studentName">
+        Voornaam student: <input type="text" id="firstName">
         Klas: <select id="selectedClass">
             <option value="Delta">Delta</option><option value="Echo">Echo</option>
             <option value="Foxtrot">Foxtrot</option><option value="Lima">Lima</option>
