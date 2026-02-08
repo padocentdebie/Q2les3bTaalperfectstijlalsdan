@@ -84,26 +84,23 @@
         window.checkAndSave = function() {
             const className = document.getElementById('selectedClass').value;
             const studentName = document.getElementById('studentName').value;
-            if(!className || !studentName) { alert("Vul naam en klas in."); return; }
+            if(!className || !studentName) { alert("Naam en klas zijn verplicht."); return; }
 
             let correct = 0;
             let total = 0;
-
             document.querySelectorAll('input[data-correct]').forEach(input => {
                 total++;
                 if (input.value.trim().toLowerCase() === input.dataset.correct) {
                     input.className = "correct"; correct++;
-                } else { 
-                    input.className = "incorrect"; 
-                }
+                } else { input.className = "incorrect"; }
             });
 
             push(ref(db, 'lessen/' + className), {
                 student: studentName,
                 score: `${correct}/${total}`,
                 zinnen: [document.getElementById('z1').value, document.getElementById('z2').value, document.getElementById('z3').value],
-                time: new Date().toLocaleTimeString()
-            }).then(() => alert(`Resultaten opgeslagen. Score: ${correct}/${total}.`));
+                timestamp: Date.now()
+            }).then(() => alert(`Opgeslagen. Score: ${correct}/${total}.`));
         };
 
         window.loadResults = (c) => {
@@ -111,10 +108,15 @@
             onValue(ref(db, 'lessen/' + c), (s) => {
                 const d = s.val();
                 const resDiv = document.getElementById('results');
-                resDiv.innerHTML = d ? "" : "Geen data beschikbaar.";
+                resDiv.innerHTML = d ? "" : "Geen data beschikbaar voor deze klas.";
+                // Chronologische volgorde aanhouden
                 for(let k in d) {
-                    resDiv.innerHTML += `<div class="res-card"><strong>Student: ${d[k].student}</strong> (${d[k].score})<br>
-                    1: ${d[k].zinnen[0]}<br>2: ${d[k].zinnen[1]}<br>3: ${d[k].zinnen[2]}</div>`;
+                    resDiv.innerHTML += `<div class="res-card">
+                        <strong>${d[k].student}</strong> (Score: ${d[k].score})<br>
+                        <em>1. Stellend:</em> ${d[k].zinnen[0]}<br>
+                        <em>2. Vergrotend:</em> ${d[k].zinnen[1]}<br>
+                        <em>3. Overtreffend:</em> ${d[k].zinnen[2]}
+                    </div>`;
                 }
             });
         };
@@ -130,26 +132,21 @@
         body { font-family: 'Arial', sans-serif; background: #f0f0f0; padding: 20px; color: #333; }
         .container { max-width: 950px; margin: auto; background: #fff; padding: 30px; border: 1px solid #333; }
         h1, h2 { background: #003366; color: #fff; padding: 10px; font-size: 1.2rem; text-transform: uppercase; margin-top: 30px; }
-        h1:first-child { margin-top: 0; }
-        
         .header-flex { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 20px; }
-        .uitleg { flex: 1; border: 1px solid #ccc; padding: 15px; background: #f9f9f9; line-height: 1.6; }
+        .uitleg { flex: 1; border: 1px solid #ccc; padding: 15px; background: #f9f9f9; }
         .instruction-gif { width: 250px; height: auto; border: 1px solid #ccc; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; }
         th, td { border: 1px solid #999; padding: 8px; text-align: left; }
         th { background: #eee; }
         input[type="text"] { padding: 6px; border: 1px solid #ccc; }
-        .context-input { width: 160px; }
         .full-input { width: 100%; box-sizing: border-box; margin-bottom: 10px; }
-        .sentence-row { margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
         .correct { border: 2px solid green !important; background: #f0fff0; }
         .incorrect { border: 2px solid red !important; background: #fff0f0; }
         .fixed-word { font-weight: bold; background: #eee; text-align: center; }
         .res-card { border-bottom: 1px solid #003366; padding: 15px; }
         button { background: #003366; color: white; border: none; padding: 10px 15px; cursor: pointer; font-weight: bold; }
         .btn-reset { background: #900; float: right; }
-        .nav-btn { background: #555; margin-right: 5px; }
+        .nav-btn { background: #555; margin-right: 5px; margin-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -158,60 +155,49 @@
     
     <div class="header-flex">
         <div class="uitleg">
-            <strong>Instructie:</strong><br>
-            Nauwkeurig taalgebruik is essentieel in het proces-verbaal. <br>
-            - <strong>Stellende trap:</strong> Basisvorm. Gebruik <em>als</em> bij gelijkheid.<br>
-            - <strong>Vergrotende trap:</strong> Basisvorm + er. Gebruik <em>dan</em> bij verschil.<br>
-            - <strong>Overtreffende trap:</strong> Basisvorm + st (de hoogste graad).
+            <strong>Instructie:</strong> Nauwkeurig taalgebruik is essentieel.<br>
+            - <strong>Stellend:</strong> Basisvorm. Gebruik <em>als</em> bij gelijkheid.<br>
+            - <strong>Vergrotend:</strong> Basisvorm + er. Gebruik <em>dan</em> bij verschil.<br>
+            - <strong>Overtreffend:</strong> Basisvorm + st.
         </div>
         <img src="1740073406664.gif" alt="Instructie Illustratie" class="instruction-gif">
     </div>
 
     <div style="margin-bottom:20px; border-bottom: 2px solid #003366; padding-bottom: 20px;">
-        Naam student: <input type="text" id="studentName">
+        Naam: <input type="text" id="studentName">
         Klas: <select id="selectedClass">
-            <option value="Delta">Delta</option>
-            <option value="Echo">Echo</option>
-            <option value="Foxtrot">Foxtrot</option>
-            <option value="Lima">Lima</option>
+            <option value="Delta">Delta</option><option value="Echo">Echo</option>
+            <option value="Foxtrot">Foxtrot</option><option value="Lima">Lima</option>
             <option value="Mike">Mike</option>
         </select>
     </div>
 
     <h2>Onderdeel 1: Trappen van vergelijking</h2>
-    <table>
-        <thead><tr><th>Stellend</th><th>Vergrotend</th><th>Overtreffend</th></tr></thead>
-        <tbody id="trap-body"></tbody>
-    </table>
+    <table><thead><tr><th>Stellend</th><th>Vergrotend</th><th>Overtreffend</th></tr></thead><tbody id="trap-body"></tbody></table>
 
-    <h2>Onderdeel 2: Contextuele oefening (20 zinnen)</h2>
+    <h2>Onderdeel 2: Contextuele oefening</h2>
     <div id="context-zinnen"></div>
 
     <h2>Onderdeel 3: Eigen praktijkvoorbeelden</h2>
     <p>1. Zin met stellende trap + <em>als</em> of <em>dan</em>:</p>
     <input type="text" id="z1" class="full-input">
-    
     <p>2. Zin met vergrotende trap + <em>als</em> of <em>dan</em>:</p>
     <input type="text" id="z2" class="full-input">
-    
-    <p>3. Zin met de overtreffende trap:</p>
+    <p>3. Zin met overtreffende trap:</p>
     <input type="text" id="z3" class="full-input">
 
     <button onclick="checkAndSave()">Controleren en opslaan</button>
 
-    <hr style="margin:50px 0; border: 0; border-top: 2px solid #003366;">
+    <hr style="margin:50px 0; border-top: 2px solid #003366;">
     
     <h2>Docentenoverzicht: <span id="viewing">...</span></h2>
-    <div style="margin-bottom: 15px;">
-        <button class="nav-btn" onclick="loadResults('Delta')">DELTA</button>
-        <button class="nav-btn" onclick="loadResults('Echo')">ECHO</button>
-        <button class="nav-btn" onclick="loadResults('Foxtrot')">FOXTROT</button>
-        <button class="nav-btn" onclick="loadResults('Lima')">LIMA</button>
-        <button class="nav-btn" onclick="loadResults('Mike')">MIKE</button>
-    </div>
+    <button class="nav-btn" onclick="loadResults('Delta')">DELTA</button>
+    <button class="nav-btn" onclick="loadResults('Echo')">ECHO</button>
+    <button class="nav-btn" onclick="loadResults('Foxtrot')">FOXTROT</button>
+    <button class="nav-btn" onclick="loadResults('Lima')">LIMA</button>
+    <button class="nav-btn" onclick="loadResults('Mike')">MIKE</button>
     
-    <div id="results" style="background:#eee; padding:10px; margin-top:10px; border: 1px solid #ccc;"></div>
-    
+    <div id="results" style="background:#eee; padding:10px; margin-top:10px;"></div>
     <button class="btn-reset" onclick="hardReset()">Wis data geselecteerde klas</button>
     <div style="clear:both;"></div>
 </div>
