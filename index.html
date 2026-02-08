@@ -35,7 +35,7 @@
             { q: "De (dronken) _____ bestuurder weigerde de blaastest.", a: "dronken" },
             { q: "Deze getuigenverklaring is (betrouwbaar) _____ dan de vorige.", a: "betrouwbaarder" },
             { q: "Het onderzoek duurt (lang) _____ dan we dachten.", a: "langer" },
-            { q: "Het was op dat moment het (druk) _____ punt van de dag.", a: "drukst" },
+            { q: "Het was op dat moment het (druk) _____ moment van de dag.", a: "drukste" },
             { q: "De verdachte bleef (rustig) _____ onder de verhoren.", a: "rustig" },
             { q: "Deze overtreding is even (strafbaar) _____ als die andere.", a: "strafbaar" },
             { q: "Het is de (groot) _____ inbeslagname van dit jaar.", a: "grootste" },
@@ -51,7 +51,13 @@
             { q: "Zijn verklaring was (duidelijk) _____ als die van de getuige.", a: "duidelijker" },
             { q: "Het was de (koud) _____ nacht van de surveillance.", a: "koudste" },
             { q: "De (vals) _____ aangifte leidde tot een onderzoek.", a: "valse" },
-            { q: "De camera's gaven een (scherp) _____ beeld dan gisteren.", a: "scherper" }
+            { q: "De camera's gaven een (scherp) _____ beeld dan gisteren.", a: "scherper" },
+            // 5 nieuwe zinnen met de 'het-woord + e' regel
+            { q: "Het (snel) _____ voertuig haalde de patrouillewagen in.", a: "snelle" },
+            { q: "Wij troffen het (gevaarlijk) _____ voorwerp aan in de kofferbak.", a: "gevaarlijke" },
+            { q: "Het (vers) _____ spoor leidde naar de achtertuin.", a: "verse" },
+            { q: "Dat was het (moeilijk) _____ verhoor van de middag.", a: "moeilijkste" },
+            { q: "Het (kalm) _____ antwoord van de verdachte was opvallend.", a: "kalme" }
         ];
 
         window.onload = () => {
@@ -132,7 +138,7 @@
         .container { max-width: 950px; margin: auto; background: #fff; padding: 30px; border: 1px solid #333; }
         h1, h2 { background: #003366; color: #fff; padding: 10px; font-size: 1.2rem; text-transform: uppercase; margin-top: 30px; }
         .header-flex { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 20px; }
-        .uitleg { flex: 1; border: 1px solid #ccc; padding: 15px; background: #f9f9f9; }
+        .uitleg { flex: 1; border: 1px solid #ccc; padding: 15px; background: #f9f9f9; font-size: 0.95rem; }
         .instruction-gif { width: 250px; height: auto; border: 1px solid #ccc; }
         table { width: 100%; border-collapse: collapse; }
         th, td { border: 1px solid #999; padding: 8px; text-align: left; }
@@ -157,7 +163,9 @@
             <strong>Instructie:</strong> Nauwkeurig taalgebruik is essentieel.<br>
             - <strong>Stellend:</strong> Basisvorm. Gebruik <em>als</em> bij gelijkheid.<br>
             - <strong>Vergrotend:</strong> Basisvorm + er. Gebruik <em>dan</em> bij verschil.<br>
-            - <strong>Overtreffend:</strong> Basisvorm + st.
+            - <strong>Overtreffend:</strong> Basisvorm + st.<br><br>
+            <strong>Spellingsregel (buigings-e):</strong><br>
+            Wanneer een bijvoeglijk naamwoord voor een <strong>het-woord</strong> staat, krijgt het een extra <strong>-e</strong> (bijv. <em>het snelle voertuig</em>, <em>het drukste moment</em>).
         </div>
         <img src="1740073406664.gif" alt="Instructie Illustratie" class="instruction-gif">
     </div>
@@ -174,7 +182,7 @@
     <h2>Onderdeel 1: Trappen van vergelijking</h2>
     <table><thead><tr><th>Stellend</th><th>Vergrotend</th><th>Overtreffend</th></tr></thead><tbody id="trap-body"></tbody></table>
 
-    <h2>Onderdeel 2: Contextuele oefening</h2>
+    <h2>Onderdeel 2: Contextuele oefening (25 zinnen)</h2>
     <div id="context-zinnen"></div>
 
     <h2>Onderdeel 3: Eigen praktijkvoorbeelden</h2>
