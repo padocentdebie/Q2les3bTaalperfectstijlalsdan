@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Politie Academie - Taaltraining & Evaluatie</title>
+    <title>Taalvaardigheid Rapportage - Politieschool</title>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -21,174 +21,182 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- STUDENT FUNCTIES ---
-        window.saveWork = function() {
+        const woordenTabel = [
+            ["goed", "beter", "best"], ["veel", "meer", "meest"], ["weinig", "minder", "minst"],
+            ["lek", "lekker", "lekst"], ["chagrijnig", "chagrijniger", "chagrijnigst"],
+            ["lekker", "lekkerder", "lekkerst"], ["naar", "naarder", "naarst"], ["gezond", "gezonder", "gezondst"],
+            ["snel", "sneller", "snelst"], ["zwaar", "zwaarder", "zwaarst"], ["gevaarlijk", "gevaarlijker", "gevaarlijkst"],
+            ["hoog", "hoger", "hoogst"], ["verdacht", "verdachter", "verdachtst"], ["duidelijk", "duidelijker", "duidelijkst"],
+            ["hard", "harder", "hardst"], ["streng", "strenger", "strengst"], ["kalm", "kalmer", "kalmst"],
+            ["grof", "grover", "grofst"], ["vers", "verser", "verst"], ["plat", "platter", "platst"]
+        ];
+
+        const contextZinnen = [
+            { q: "De (dronken) _____ bestuurder weigerde de blaastest.", a: "dronken" },
+            { q: "Deze getuigenverklaring is (betrouwbaar) _____ dan de vorige.", a: "betrouwbaarder" },
+            { q: "Het onderzoek duurt (lang) _____ dan we dachten.", a: "langer" },
+            { q: "De verdachte bleef (rustig) _____ onder de verhoren.", a: "rustig" },
+            { q: "Deze overtreding is even (strafbaar) _____ als die andere.", a: "strafbaar" },
+            { q: "Het is de (groot) _____ inbeslagname van dit jaar.", a: "grootste" },
+            { q: "De agent trad (kordaat) _____ op bij de aanhouding.", a: "kordaat" },
+            { q: "De weg was (glad) _____ dan de stoep.", a: "gladder" },
+            { q: "Hij reed in een (gestolen) _____ voertuig.", a: "gestolen" },
+            { q: "De situatie werd (gevaarlijk) _____ naarmate de groep groeide.", a: "gevaarlijker" }
+        ];
+
+        window.onload = () => {
+            const tbody = document.getElementById('trap-body');
+            woordenTabel.forEach((rij, i) => {
+                const tr = document.createElement('tr');
+                const showIndex = Math.floor(Math.random() * 3);
+                rij.forEach((woord, j) => {
+                    const td = document.createElement('td');
+                    if (j === showIndex) { td.innerText = woord; td.className = "fixed-word"; }
+                    else {
+                        const input = document.createElement('input');
+                        input.type = "text"; input.id = `t-${i}-${j}`; input.dataset.correct = woord;
+                        td.appendChild(input);
+                    }
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+
+            const zinContainer = document.getElementById('context-zinnen');
+            contextZinnen.forEach((item, i) => {
+                const div = document.createElement('div');
+                div.className = "sentence-row";
+                div.innerHTML = `${i+1}. ${item.q} <input type="text" id="c-${i}" data-correct="${item.a}" class="context-input">`;
+                zinContainer.appendChild(div);
+            });
+        };
+
+        window.checkAndSave = function() {
             const className = document.getElementById('selectedClass').value;
             const studentName = document.getElementById('studentName').value;
-            const ownSentence = document.getElementById('ownSentence').value;
-            const q1 = document.getElementById('q1').value.trim();
-            const q2 = document.getElementById('q2').value.trim();
-            
-            if(!className || !studentName || !ownSentence) {
-                alert("Let op: Vul klas, naam en je eigen zinnen in.");
-                return;
-            }
+            if(!className || !studentName) { alert("Vul naam en klas in."); return; }
 
-            const studentRef = ref(db, 'lessen/' + className);
-            push(studentRef, {
+            let correct = 0;
+            let total = 0;
+
+            document.querySelectorAll('input[data-correct]').forEach(input => {
+                total++;
+                if (input.value.trim().toLowerCase() === input.dataset.correct) {
+                    input.className = "correct"; correct++;
+                } else { 
+                    input.className = "incorrect"; 
+                }
+            });
+
+            push(ref(db, 'lessen/' + className), {
                 student: studentName,
-                q1: q1,
-                q2: q2,
-                sentence: ownSentence,
+                score: `${correct}/${total}`,
+                zinnen: [document.getElementById('z1').value, document.getElementById('z2').value, document.getElementById('z3').value],
                 time: new Date().toLocaleTimeString()
-            }).then(() => {
-                alert("Ingevuld materiaal is verzonden naar de database.");
-                document.getElementById('studentName').value = "";
-                document.getElementById('ownSentence').value = "";
-                document.getElementById('q1').value = "";
-                document.getElementById('q2').value = "";
-            });
+            }).then(() => alert(`Opgeslagen. Score op automatische delen: ${correct}/${total}.`));
         };
 
-        // --- DOCENT FUNCTIES ---
-        let activeClass = "";
-
-        window.loadClassResults = function(className) {
-            activeClass = className;
-            const resultsDiv = document.getElementById('results-display');
-            const adminTitle = document.getElementById('admin-title');
-            const resetBtn = document.getElementById('reset-btn-container');
-            
-            adminTitle.innerText = "Overzicht Klas: " + className;
-            resultsDiv.innerHTML = "Gegevens ophalen...";
-            
-            const classRef = ref(db, 'lessen/' + className);
-            onValue(classRef, (snapshot) => {
-                const data = snapshot.val();
-                resultsDiv.innerHTML = "";
-                
-                if(!data) {
-                    resultsDiv.innerHTML = "<p>Geen studentenwerk gevonden voor deze klas.</p>";
-                    resetBtn.style.display = "none";
-                    return;
-                }
-
-                resetBtn.style.display = "block";
-                for(let id in data) {
-                    const res = data[id];
-                    const isCorrect1 = res.q1.toLowerCase() === 'dan' ? '✅' : '❌';
-                    const isCorrect2 = res.q2.toLowerCase() === 'als' ? '✅' : '❌';
-
-                    resultsDiv.innerHTML += `
-                        <div class="result-card">
-                            <div class="result-header">
-                                <strong>${res.student}</strong> <small>${res.time}</small>
-                            </div>
-                            <div class="result-body">
-                                <strong>Quiz:</strong> 1: ${res.q1} ${isCorrect1} | 2: ${res.q2} ${isCorrect2}<br>
-                                <strong>Eigen zinnen:</strong><br>
-                                <span class="student-text">${res.sentence}</span>
-                            </div>
-                        </div>`;
+        window.loadResults = (c) => {
+            document.getElementById('viewing').innerText = c;
+            onValue(ref(db, 'lessen/' + c), (s) => {
+                const d = s.val();
+                const resDiv = document.getElementById('results');
+                resDiv.innerHTML = d ? "" : "Geen data beschikbaar voor deze klas.";
+                for(let k in d) {
+                    resDiv.innerHTML += `<div class="res-card"><strong>Naam: ${d[k].student}</strong> (Score: ${d[k].score})<br>
+                    Stellend: ${d[k].zinnen[0]}<br>Vergrotend: ${d[k].zinnen[1]}<br>Overtreffend: ${d[k].zinnen[2]}</div>`;
                 }
             });
         };
 
-        window.hardResetClass = function() {
-            if(!activeClass) return;
-            
-            const bevestiging = confirm(`WAARSCHUWING: Je staat op het punt ALLE ingeleverde producten van klas ${activeClass} definitief te verwijderen. Dit kan niet ongedaan worden gemaakt. Doorgaan?`);
-            
-            if(bevestiging) {
-                const classRef = ref(db, 'lessen/' + activeClass);
-                remove(classRef).then(() => {
-                    alert(`Klas ${activeClass} is volledig gereset.`);
-                }).catch((error) => {
-                    alert("Fout bij verwijderen: " + error.message);
-                });
+        window.hardReset = () => {
+            const c = document.getElementById('viewing').innerText;
+            if(c !== "..." && confirm(`Weet u zeker dat u de data van klas ${c} wilt verwijderen?`)) {
+                remove(ref(db, 'lessen/' + c)).then(() => alert(`Data klas ${c} verwijderd.`));
             }
         };
     </script>
     <style>
-        :root { --police-blue: #002344; --accent-gold: #f1c40f; --bg: #f4f7f9; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 900px; margin: auto; }
-        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; border-top: 5px solid var(--police-blue); }
-        h1, h2, h3 { color: var(--police-blue); margin-top: 0; }
-        
-        /* Input styling */
-        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
-        .btn-save { background: #27ae60; color: white; padding: 15px; border: none; width: 100%; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 18px; }
-        .btn-save:hover { background: #219150; }
-
-        /* Docent Nav */
-        .nato-nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
-        .nato-btn { flex: 1; min-width: 100px; padding: 10px; background: var(--police-blue); color: white; border: none; cursor: pointer; border-radius: 4px; font-weight: bold; }
-        .nato-btn:hover { background: var(--accent-gold); color: var(--police-blue); }
-
-        /* Resultaten */
-        .result-card { border-left: 4px solid var(--accent-gold); background: #f9f9f9; padding: 15px; margin-bottom: 10px; border-radius: 0 4px 4px 0; }
-        .result-header { border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; display: flex; justify-content: space-between; }
-        .student-text { color: #2c3e50; font-style: italic; white-space: pre-wrap; }
-
-        /* Reset knop */
-        .btn-reset { background: #c0392b; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        .btn-reset:hover { background: #a93226; }
-        #reset-btn-container { display: none; text-align: right; }
+        body { font-family: 'Arial', sans-serif; background: #f0f0f0; padding: 20px; color: #333; }
+        .container { max-width: 900px; margin: auto; background: #fff; padding: 30px; border: 1px solid #333; }
+        h1, h2 { background: #003366; color: #fff; padding: 10px; font-size: 1.2rem; text-transform: uppercase; margin-top: 30px; }
+        h1:first-child { margin-top: 0; }
+        .uitleg { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; background: #f9f9f9; line-height: 1.6; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #999; padding: 8px; text-align: left; }
+        th { background: #eee; }
+        input[type="text"] { padding: 6px; border: 1px solid #ccc; }
+        .context-input { width: 150px; }
+        .full-input { width: 100%; box-sizing: border-box; margin-bottom: 10px; }
+        .sentence-row { margin-bottom: 10px; }
+        .correct { border: 2px solid green !important; background: #f0fff0; }
+        .incorrect { border: 2px solid red !important; background: #fff0f0; }
+        .fixed-word { font-weight: bold; background: #eee; text-align: center; }
+        .res-card { border-bottom: 1px solid #003366; padding: 15px; background: #fff; }
+        button { background: #003366; color: white; border: none; padding: 10px 15px; cursor: pointer; font-weight: bold; }
+        .btn-reset { background: #900; float: right; }
+        .nav-btn { background: #555; margin-right: 5px; }
     </style>
 </head>
 <body>
-
 <div class="container">
-    <div class="card">
-        <h1>🚔 Politieschool: Taaltraining</h1>
-        <p>Focus: Bijvoeglijke naamwoorden, <em>Als</em> (stellend) vs. <em>Dan</em> (overtreffend).</p>
+    <h1>Bijvoeglijke naamwoorden en trappen van vergelijking</h1>
+    
+    <div class="uitleg">
+        <strong>Instructie (MBO 3):</strong><br>
+        In een proces-verbaal is nauwkeurige taal noodzakelijk. <br>
+        - <strong>Stellende trap:</strong> Basisvorm. Gebruik <em>als</em> bij gelijkheid (bijv. even groot als).<br>
+        - <strong>Vergrotende trap:</strong> Basisvorm + er. Gebruik <em>dan</em> bij verschil (bijv. groter dan).<br>
+        - <strong>Overtreffende trap:</strong> Basisvorm + st (bijv. de grootste).
     </div>
 
-    <div class="card">
-        <h3>1. Inleveren student</h3>
-        <select id="selectedClass">
-            <option value="">Kies je klas (Nato)...</option>
-            <option value="Delta">Klas D (Delta)</option>
-            <option value="Echo">Klas E (Echo)</option>
-            <option value="Foxtrot">Klas F (Foxtrot)</option>
-            <option value="Lima">Klas L (Lima)</option>
-            <option value="Mike">Klas M (Mike)</option>
+    <div style="margin-bottom:20px;">
+        Naam student: <input type="text" id="studentName">
+        Klas: <select id="selectedClass">
+            <option value="Delta">Delta</option>
+            <option value="Echo">Echo</option>
+            <option value="Foxtrot">Foxtrot</option>
+            <option value="Lima">Lima</option>
+            <option value="Mike">Mike</option>
         </select>
-        <input type="text" id="studentName" placeholder="Volledige naam">
-        
-        <p><strong>Vraag A:</strong> De verdachte rende harder ____ de agent.</p>
-        <input type="text" id="q1" placeholder="als of dan?">
-        
-        <p><strong>Vraag B:</strong> De getuige was even betrouwbaar ____ de camerabeelden.</p>
-        <input type="text" id="q2" placeholder="als of dan?">
-
-        <p><strong>2. Eigen voorbeeldzinnen (voor de bespreking):</strong></p>
-        <textarea id="ownSentence" rows="4" placeholder="Schrijf hier je eigen zinnen waarin je een vergelijking maakt tussen personen of situaties..."></textarea>
-        
-        <button class="btn-save" onclick="saveWork()">WERK OPSLAAN</button>
     </div>
 
-    <div class="card" style="border-top-color: var(--accent-gold);">
-        <h2 id="admin-title">Docentenpaneel</h2>
-        <p>Selecteer een klas om de producten live in te laden:</p>
-        <div class="nato-nav">
-            <button class="nato-btn" onclick="loadClassResults('Delta')">DELTA</button>
-            <button class="nato-btn" onclick="loadClassResults('Echo')">ECHO</button>
-            <button class="nato-btn" onclick="loadClassResults('Foxtrot')">FOXTROT</button>
-            <button class="nato-btn" onclick="loadClassResults('Lima')">LIMA</button>
-            <button class="nato-btn" onclick="loadClassResults('Mike')">MIKE</button>
-        </div>
+    <h2>Onderdeel 1: Trappen van vergelijking</h2>
+    <table>
+        <thead><tr><th>Stellend</th><th>Vergrotend</th><th>Overtreffend</th></tr></thead>
+        <tbody id="trap-body"></tbody>
+    </table>
 
-        <div id="results-display">
-            <i>Klik op een klasnaam om de inzendingen te bekijken.</i>
-        </div>
+    <h2>Onderdeel 2: Contextuele oefening</h2>
+    <div id="context-zinnen"></div>
 
-        <div id="reset-btn-container">
-            <button class="btn-reset" onclick="hardResetClass()">⚠️ KLAS VOLLEDIG RESETTEN</button>
-        </div>
+    <h2>Onderdeel 3: Eigen praktijkvoorbeelden</h2>
+    <p>1. Stel een zin op met een <strong>stellende trap</strong> en het correcte gebruik van <em>als</em> of <em>dan</em>:</p>
+    <input type="text" id="z1" class="full-input">
+    
+    <p>2. Stel een zin op met een <strong>vergrotende trap</strong> en het correcte gebruik van <em>als</em> of <em>dan</em>:</p>
+    <input type="text" id="z2" class="full-input">
+    
+    <p>3. Stel een zin op met de <strong>overtreffende trap</strong>:</p>
+    <input type="text" id="z3" class="full-input">
+
+    <button onclick="checkAndSave()">Resultaten controleren en opslaan</button>
+
+    <hr style="margin:50px 0; border: 0; border-top: 1px solid #000;">
+    
+    <h2>Docentenoverzicht: <span id="viewing">...</span></h2>
+    <div style="margin-bottom: 15px;">
+        <button class="nav-btn" onclick="loadResults('Delta')">DELTA</button>
+        <button class="nav-btn" onclick="loadResults('Echo')">ECHO</button>
+        <button class="nav-btn" onclick="loadResults('Foxtrot')">FOXTROT</button>
+        <button class="nav-btn" onclick="loadResults('Lima')">LIMA</button>
+        <button class="nav-btn" onclick="loadResults('Mike')">MIKE</button>
     </div>
+    
+    <div id="results" style="background:#eee; padding:10px; margin-top:10px; border: 1px solid #ccc; min-height: 50px;"></div>
+    
+    <button class="btn-reset" onclick="hardReset()">Wis data geselecteerde klas</button>
+    <div style="clear:both;"></div>
 </div>
-
 </body>
 </html>
