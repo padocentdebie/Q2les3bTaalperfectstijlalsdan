@@ -6,8 +6,9 @@
     <title>Taalvaardigheid Rapportage - Politieschool</title>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // Firebase configuratie
         const firebaseConfig = {
             apiKey: "AIzaSyCJ5of6K5MRFXMOiEqEyZxZbs1xoJtXuN8",
             authDomain: "pvaangifteinleveren.firebaseapp.com",
@@ -21,6 +22,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // Data voor de automatische oefeningen
         const woordenTabel = [
             ["goed", "beter", "best"], ["veel", "meer", "meest"], ["weinig", "minder", "minst"],
             ["lek", "lekker", "lekst"], ["chagrijnig", "chagrijniger", "chagrijnigst"],
@@ -59,6 +61,7 @@
             { q: "Het (kalm) _____ antwoord van de verdachte was opvallend.", a: "kalme" }
         ];
 
+        // Pagina initialisatie
         window.onload = () => {
             const tbody = document.getElementById('trap-body');
             woordenTabel.forEach((rij, i) => {
@@ -86,13 +89,13 @@
             });
         };
 
+        // Gegevens opslaan
         window.checkAndSave = function() {
             const className = document.getElementById('selectedClass').value;
             const firstName = document.getElementById('firstName').value;
             if(!className || !firstName) { alert("Voornaam en klas zijn verplicht."); return; }
 
-            let correct = 0;
-            let total = 0;
+            let correct = 0; let total = 0;
             document.querySelectorAll('input[data-correct]').forEach(input => {
                 total++;
                 if (input.value.trim().toLowerCase() === input.dataset.correct) {
@@ -100,19 +103,21 @@
                 } else { input.className = "incorrect"; }
             });
 
+            const eigenZinnen = [];
+            for(let i=1; i<=15; i++) {
+                eigenZinnen.push(document.getElementById(`z${i}`).value);
+            }
+
             push(ref(db, 'lessen/' + className), {
                 student: firstName,
                 score: `${correct}/${total}`,
-                zinnen: [
-                    document.getElementById('z1').value, 
-                    document.getElementById('z2').value, 
-                    document.getElementById('z3').value,
-                    document.getElementById('z4').value
-                ],
+                zinnen: eigenZinnen,
+                feedback: null,
                 timestamp: Date.now()
-            }).then(() => alert(`Opgeslagen. Score op de automatische delen: ${correct}/${total}.`));
+            }).then(() => alert(`Resultaten opgeslagen! Geef nu feedback aan een collega onderaan de pagina.`));
         };
 
+        // Resultaten en feedback laden
         window.loadResults = (c) => {
             document.getElementById('viewing').innerText = c;
             onValue(ref(db, 'lessen/' + c), (s) => {
@@ -120,105 +125,129 @@
                 const resDiv = document.getElementById('results');
                 resDiv.innerHTML = d ? "" : "Geen data beschikbaar voor deze klas.";
                 for(let k in d) {
+                    let fbHtml = d[k].feedback ? `<div class="feedback-box"><strong>Feedback ontvangen:</strong><br>${d[k].feedback.replace(/\n/g, '<br>')}</div>` : 
+                        `<button onclick="openFeedback('${c}', '${k}')">Geef Feedback aan ${d[k].student}</button>`;
+
                     resDiv.innerHTML += `<div class="res-card">
-                        <strong>Voornaam: ${d[k].student}</strong> (Score: ${d[k].score})<br>
-                        <em>1. Stellend:</em> ${d[k].zinnen[0]}<br>
-                        <em>2. Vergrotend:</em> ${d[k].zinnen[1]}<br>
-                        <em>3. Overtreffend:</em> ${d[k].zinnen[2]}<br>
-                        <em>4. Het-woord + e:</em> ${d[k].zinnen[3]}
+                        <div class="card-header">Student: ${d[k].student} | Score: ${d[k].score}</div>
+                        <div class="student-sentences">
+                            ${d[k].zinnen.map((z, i) => `<em>${i+1}:</em> ${z}`).join('<br>')}
+                        </div>
+                        ${fbHtml}
                     </div>`;
                 }
             });
         };
 
+        // Feedback prompt openen
+        window.openFeedback = (klas, id) => {
+            const checklist = "CHECKLIST:\n[ ] Vergelijking correct (als/dan)?\n[ ] Buigings-e bij HET-woord correct?\n[ ] Stoffelijk bnw correct gespeld (-en)?\n\nTip: ";
+            const fb = prompt("Beoordeel de zinnen van je collega:", checklist);
+            if(fb && fb !== checklist) { 
+                update(ref(db, `lessen/${klas}/${id}`), { feedback: fb }); 
+            }
+        };
+
+        // Hard reset voor de docent
         window.hardReset = () => {
             const c = document.getElementById('viewing').innerText;
-            if(c !== "..." && confirm(`Data van klas ${c} definitief verwijderen?`)) {
+            if(c !== "..." && confirm(`LET OP: Alle data van klas ${c} definitief wissen?`)) {
                 remove(ref(db, 'lessen/' + c));
             }
         };
     </script>
     <style>
-        body { font-family: 'Arial', sans-serif; background: #f0f0f0; padding: 20px; color: #333; }
-        .container { max-width: 950px; margin: auto; background: #fff; padding: 30px; border: 1px solid #333; }
-        h1, h2 { background: #003366; color: #fff; padding: 10px; font-size: 1.2rem; text-transform: uppercase; margin-top: 30px; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; padding: 20px; color: #333; }
+        .container { max-width: 1000px; margin: auto; background: #fff; padding: 30px; border: 2px solid #003366; border-radius: 12px; }
+        h1, h2 { background: #003366; color: #fff; padding: 12px; font-size: 1.1rem; text-transform: uppercase; border-radius: 4px; margin-top: 30px; }
+        .instruction-box { background: #fff4e5; border-left: 6px solid #ffa500; padding: 20px; margin-bottom: 25px; border-radius: 4px; }
         .header-flex { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 20px; }
-        .uitleg { flex: 1; border: 1px solid #ccc; padding: 15px; background: #f9f9f9; font-size: 0.95rem; line-height: 1.5; }
-        .instruction-gif { width: 250px; height: auto; border: 1px solid #ccc; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #999; padding: 8px; text-align: left; }
+        .uitleg { flex: 1; border: 1px solid #ccc; padding: 15px; background: #fffdeb; font-size: 0.9rem; line-height: 1.4; border-radius: 4px; }
+        .instruction-gif { width: 180px; border: 2px solid #003366; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #999; padding: 8px; }
         th { background: #eee; }
-        input[type="text"] { padding: 6px; border: 1px solid #ccc; }
-        .full-input { width: 100%; box-sizing: border-box; margin-bottom: 10px; }
-        .correct { border: 2px solid green !important; background: #f0fff0; }
-        .incorrect { border: 2px solid red !important; background: #fff0f0; }
-        .fixed-word { font-weight: bold; background: #eee; text-align: center; }
-        .res-card { border-bottom: 1px solid #003366; padding: 15px; background: #fff; }
-        button { background: #003366; color: white; border: none; padding: 10px 15px; cursor: pointer; font-weight: bold; }
-        .btn-reset { background: #900; float: right; }
+        input[type="text"] { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .full-input { width: 100%; box-sizing: border-box; margin-bottom: 8px; }
+        .correct { border: 2px solid #28a745 !important; background: #e8f5e9; }
+        .incorrect { border: 2px solid #dc3545 !important; background: #ffebee; }
+        .fixed-word { font-weight: bold; background: #f8f9fa; text-align: center; }
+        .res-card { border: 1px solid #ddd; margin-top: 15px; border-radius: 8px; background: #fafafa; }
+        .card-header { background: #e7efff; padding: 10px; font-weight: bold; border-bottom: 1px solid #ddd; }
+        .student-sentences { padding: 15px; font-size: 0.85rem; line-height: 1.5; }
+        .feedback-box { background: #e6fffa; padding: 10px; margin: 10px; border: 1px solid #b2f5ea; border-radius: 6px; }
+        button { background: #003366; color: white; border: none; padding: 10px 15px; cursor: pointer; font-weight: bold; border-radius: 4px; }
+        .btn-reset { background: #c00; float: right; margin-top: 20px; }
         .nav-btn { background: #555; margin-right: 5px; margin-bottom: 5px; }
-        .sentence-row { margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .sentence-row { margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>Taalvaardigheid: Bijvoeglijke naamwoorden</h1>
     
+    <div class="instruction-box">
+        <strong>WAT GA JE DOEN?</strong><br>
+        1. <strong>Identificatie:</strong> Vul je naam in en kies je klas.<br>
+        2. <strong>Deel 1 & 2:</strong> Maak de oefeningen. De velden worden groen (goed) of rood (fout) na het opslaan.<br>
+        3. <strong>Deel 3:</strong> Schrijf 15 zinnen. Gebruik de suggesties in de vakken.<br>
+        4. <strong>Feedback:</strong> Bekijk onderaan de zinnen van een klasgenoot en geef opbouwende feedback!
+    </div>
+
     <div class="header-flex">
         <div class="uitleg">
-            <strong>Instructie:</strong> Nauwkeurig taalgebruik is essentieel.<br>
-            - <strong>Stellend:</strong> Basisvorm. Gebruik <em>als</em> bij gelijkheid.<br>
-            - <strong>Vergrotend:</strong> Basisvorm + er. Gebruik <em>dan</em> bij verschil.<br>
-            - <strong>Overtreffend:</strong> Basisvorm + st.<br><br>
-            <strong>Spellingsregel (buigings-e):</strong><br>
-            Wanneer een bijvoeglijk naamwoord voor een <strong>het-woord</strong> staat, krijgt het een extra <strong>-e</strong> (bijv. <em>het snelste voertuig</em>, <em>het drukste moment</em>).
+            <strong>Checklist:</strong><br>
+            - Vergelijking: <em>even... als</em> / <em>...er dan</em>.<br>
+            - Het-woord + een/geen: <strong>Kortste vorm</strong> (bijv. een <em>zwart</em> voertuig).<br>
+            - Stoffelijk: Eindigt op <strong>-en</strong> (bijv. de <em>gouden</em> ring).
         </div>
-        <img src="1740073406664.gif" alt="Instructie Illustratie" class="instruction-gif">
+        <img src="1740073406664.gif" class="instruction-gif">
     </div>
 
-    <div style="margin-bottom:20px; border-bottom: 2px solid #003366; padding-bottom: 20px;">
-        Voornaam student: <input type="text" id="firstName">
-        Klas: <select id="selectedClass">
-            <option value="Delta">Delta</option><option value="Echo">Echo</option>
-            <option value="Foxtrot">Foxtrot</option><option value="Lima">Lima</option>
-            <option value="Mike">Mike</option>
-        </select>
+    <div style="margin-bottom:20px; background: #e7efff; padding: 15px; border-radius: 8px;">
+        Voornaam: <input type="text" id="firstName" placeholder="Naam...">
+        Klas: <select id="selectedClass"><option>Delta</option><option>Echo</option><option>Foxtrot</option><option>Lima</option><option>Mike</option></select>
     </div>
 
-    <h2>Onderdeel 1: Trappen van vergelijking</h2>
+    <h2>Deel 1: Trappen van Vergelijking</h2>
     <table><thead><tr><th>Stellend</th><th>Vergrotend</th><th>Overtreffend</th></tr></thead><tbody id="trap-body"></tbody></table>
 
-    <h2>Onderdeel 2: Contextuele oefening (25 zinnen)</h2>
+    <h2>Deel 2: Contextuele Zinnen</h2>
     <div id="context-zinnen"></div>
 
-    <h2>Onderdeel 3: Eigen praktijkvoorbeelden (PV-zinnen)</h2>
-    <p>1. Zin met <strong>stellende trap</strong> en het correcte gebruik van <em>als</em> of <em>dan</em>:</p>
-    <input type="text" id="z1" class="full-input" placeholder="Bijv. De verdachte was even groot als de getuige.">
-    
-    <p>2. Zin met <strong>vergrotende trap</strong> en het correcte gebruik van <em>als</em> of <em>dan</em>:</p>
-    <input type="text" id="z2" class="full-input" placeholder="Bijv. De blauwe auto reed harder dan de patrouillewagen.">
-    
-    <p>3. Zin met de <strong>overtreffende trap</strong>:</p>
-    <input type="text" id="z3" class="full-input" placeholder="Bijv. Dit was de gevaarlijkste situatie van de avond.">
-
-    <p>4. Zin met een bijvoeglijk naamwoord voor een <strong>het-woord</strong> (buigings-e):</p>
-    <input type="text" id="z4" class="full-input" placeholder="Bijv. Wij zagen het brandende voertuig in de berm staan.">
-
-    <button onclick="checkAndSave()">Resultaten controleren en opslaan</button>
-
-    <hr style="margin:50px 0; border-top: 2px solid #003366;">
-    
-    <h2>Docentenoverzicht (Chronologisch): <span id="viewing">...</span></h2>
-    <div style="margin-bottom: 15px;">
-        <button class="nav-btn" onclick="loadResults('Delta')">DELTA</button>
-        <button class="nav-btn" onclick="loadResults('Echo')">ECHO</button>
-        <button class="nav-btn" onclick="loadResults('Foxtrot')">FOXTROT</button>
-        <button class="nav-btn" onclick="loadResults('Lima')">LIMA</button>
-        <button class="nav-btn" onclick="loadResults('Mike')">MIKE</button>
+    <h2>Deel 3: Eigen Praktijkvoorbeelden (15x)</h2>
+    <div class="grid-container">
+        <div>
+            <p>1. Stellend (gelijkheid):</p><input type="text" id="z1" class="full-input" placeholder="(even kalm)">
+            <p>2. Vergrotend (verschil):</p><input type="text" id="z2" class="full-input" placeholder="(grover dan)">
+            <p>3. Overtreffend (het-woord):</p><input type="text" id="z3" class="full-input" placeholder="(hoogste bedrag)">
+            <p>4. Kortste vorm (het-woord):</p><input type="text" id="z4" class="full-input" placeholder="(een verdacht voertuig)">
+            <p>5. Stoffelijk bnw:</p><input type="text" id="z5" class="full-input" placeholder="(een houten deur)">
+            <p>6. Bn eindigend op -r (vergrotend):</p><input type="text" id="z6" class="full-input" placeholder="(lekkerder dan)">
+            <p>7. Bezittelijk + bn:</p><input type="text" id="z7" class="full-input" placeholder="(zijn snelste reactie)">
+            <p>8. Stellend (ontkennend):</p><input type="text" id="z8" class="full-input" placeholder="(niet zo duidelijk als)">
+        </div>
+        <div>
+            <p>9. Meervoud + bn:</p><input type="text" id="z9" class="full-input" placeholder="(gevaarlijke situaties)">
+            <p>10. Onbepaald het-woord:</p><input type="text" id="z10" class="full-input" placeholder="(geen vers spoor)">
+            <p>11. Vergrotend (kosten):</p><input type="text" id="z11" class="full-input" placeholder="(duurder dan)">
+            <p>12. Overtreffend (straf):</p><input type="text" id="z12" class="full-input" placeholder="(zwaarste straf)">
+            <p>13. Stellend (uiterlijk):</p><input type="text" id="z13" class="full-input" placeholder="(even onopvallend)">
+            <p>14. Bepaald het-woord (+e):</p><input type="text" id="z14" class="full-input" placeholder="(het scherpe mes)">
+            <p>15. Vergrotend (massa):</p><input type="text" id="z15" class="full-input" placeholder="(zwaarder dan)">
+        </div>
     </div>
+
+    <button onclick="checkAndSave()" style="width:100%; height: 50px; margin-top:20px; font-size: 1.1rem;">RESULTATEN OPSLAAN</button>
+
+    <hr style="margin:50px 0; border: 1px solid #003366;">
+    <h2>Feedback & Beoordeling</h2>
+    <button class="nav-btn" onclick="loadResults('Delta')">Delta</button><button class="nav-btn" onclick="loadResults('Echo')">Echo</button><button class="nav-btn" onclick="loadResults('Foxtrot')">Foxtrot</button><button class="nav-btn" onclick="loadResults('Lima')">Lima</button><button class="nav-btn" onclick="loadResults('Mike')">Mike</button>
     
-    <div id="results" style="background:#eee; padding:10px; margin-top:10px; border: 1px solid #ccc;"></div>
-    <button class="btn-reset" onclick="hardReset()">Wis data geselecteerde klas</button>
+    <div id="results" style="margin-top:10px;">Selecteer een klas om zinnen te beoordelen.</div>
+    
+    <button class="btn-reset" onclick="hardReset()">WIS DATA GESELECTEERDE KLAS</button>
     <div style="clear:both;"></div>
 </div>
 </body>
