@@ -5,23 +5,34 @@
     <title>Taalvaardigheid Rapportage - Politieschool</title>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f9; padding: 20px; color: #333; }
-        .container { max-width: 1000px; margin: auto; background: #fff; padding: 30px; border: 2px solid #003366; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .container { max-width: 1200px; margin: auto; background: #fff; padding: 30px; border: 2px solid #003366; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         h1, h2 { background: #003366; color: #fff; padding: 12px; font-size: 1.1rem; text-transform: uppercase; border-radius: 4px; margin-top: 30px; }
         .top-instruction { background: #fff4e5; border: 1px solid #ffa500; padding: 20px; margin-bottom: 25px; border-radius: 4px; font-size: 0.95rem; line-height: 1.5; }
-        .image-container { text-align: center; margin-bottom: 30px; background: #eee; padding: 10px; border-radius: 8px; border: 1px solid #ccc; }
+        .image-container { text-align: center; margin-bottom: 30px; }
         .context-img { max-width: 100%; height: auto; border: 2px solid #003366; border-radius: 4px; }
-        input[type="text"] { padding: 10px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; }
-        .fixed-val { background: #e7efff; font-weight: bold; padding: 10px; display: block; border-radius: 4px; color: #003366; text-align: center; border: 1px dotted #003366; }
-        .opdracht-rij { margin-bottom: 12px; display: flex; align-items: center; background: #f9f9f9; padding: 12px; border-radius: 6px; border: 1px solid #ddd; }
-        .num { width: 35px; font-weight: bold; color: #003366; }
-        .invulveld { width: 160px; border: 2px solid #003366; font-weight: bold; text-align: center; background: #fff; }
-        .btn-main { background: #28a745; color: white; border: none; width: 100%; height: 60px; font-size: 1.2rem; cursor: pointer; border-radius: 6px; font-weight: bold; margin: 30px 0; }
+        
+        .opdracht-rij { 
+            margin-bottom: 12px; 
+            display: flex; 
+            align-items: center; 
+            background: #f9f9f9; 
+            padding: 15px; 
+            border-radius: 8px; 
+            border: 1px solid #ddd;
+        }
+        .num { width: 45px; font-weight: bold; color: #003366; font-size: 1.1rem; }
+        .full-input { flex-grow: 1; padding: 12px; border: 2px solid #003366; border-radius: 4px; font-size: 1rem; font-weight: 500; background: #fff; }
+        .invulveld-kort { width: 220px; border: 2px solid #003366; font-weight: bold; text-align: center; padding: 8px; margin: 0 10px; border-radius: 4px; }
+
+        .btn-main { background: #28a745; color: white; border: none; width: 100%; height: 65px; font-size: 1.3rem; cursor: pointer; border-radius: 8px; font-weight: bold; margin: 30px 0; }
         .res-card { border: 2px solid #ccc; margin-top: 20px; border-radius: 8px; background: white; overflow: hidden; }
         .card-header { background: #003366; color: white; padding: 12px; font-weight: bold; display: flex; justify-content: space-between; }
-        .card-body { padding: 15px; }
         .fb-section { background: #eef9f0; padding: 15px; border-top: 2px solid #28a745; }
-        textarea { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; min-height: 80px; }
-        .nav-btn { padding: 10px 15px; margin-right: 5px; cursor: pointer; background: #555; color: white; border: none; border-radius: 4px; }
+        textarea { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; min-height: 80px; box-sizing: border-box; }
+        .nav-btn { padding: 12px 20px; margin-right: 8px; cursor: pointer; background: #003366; color: white; border: none; border-radius: 4px; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+        .fixed-val { background: #e7efff; font-weight: bold; padding: 8px; display: block; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -31,18 +42,18 @@
 
     <div class="top-instruction">
         <b>STAPPENPLAN:</b><br>
-        1. <b>Noteer</b> in Deel 1 de juiste trappen van vergelijking.<br>
-        2. <b>Noteer</b> in Deel 2 zinnen op basis van de variabele opdrachten.<br>
-        3. <b>Noteer</b> in Deel 3 de ontbrekende woorden op basis van de afbeelding. Let scherp op <b>het-woorden</b>, de <b>stam-vorm</b> van het bijvoeglijk naamwoord (denk aan de regel 'stoffelijk bijvoeglijk naamwoord bijvoorbeeld: <i>beton --> betonnen</i>) en het juiste gebruik van <b>als</b> of <b>dan</b>.
+        1. <b>Deel 1:</b> Trappen van vergelijking.<br>
+        2. <b>Deel 2:</b> Vul de juiste vorm in bij de zinnen over de afbeelding.<br>
+        3. <b>Deel 3:</b> Bedenk zelf volledige zinnen met de gevraagde materialen of regels.
     </div>
 
     <div class="image-container">
         <img src="1740073406664.gif" alt="Context Afbeelding" class="context-img">
     </div>
 
-    <div style="background: #e7efff; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #003366;">
-        <b>Naam Student:</b> <input type="text" id="firstName" style="width: 250px; margin-right: 20px;" placeholder="Voor- en achternaam">
-        <b>Klas:</b> <select id="selectedClass">
+    <div style="background: #e7efff; padding: 25px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #003366; display: flex; align-items: center; gap: 10px;">
+        <b>Naam Student:</b> <input type="text" id="firstName" style="width: 300px;" placeholder="Voor- en achternaam">
+        <b>Klas:</b> <select id="selectedClass" style="padding: 10px; border-radius: 4px;">
             <option>Delta</option><option>Echo</option><option>Foxtrot</option><option>Lima</option><option>Mike</option>
         </select>
     </div>
@@ -50,16 +61,16 @@
     <h2>Deel 1: Trappen van Vergelijking</h2>
     <table id="t1-tabel"></table>
 
-    <h2>Deel 2: Noteer zinnen (Variabele opdrachten)</h2>
+    <h2>Deel 2: Noteer de juiste vorm (Context Afbeelding)</h2>
     <div id="d2-container"></div>
 
-    <h2>Deel 3: Noteer de correcte vorm (15 zinnen n.a.v. afbeelding)</h2>
+    <h2>Deel 3: Bedenk zelf 15 zinnen (Focus op Stoffelijk & Grammatica)</h2>
     <div id="d3-container"></div>
 
     <button class="btn-main" onclick="checkAndSave()">PRODUCT INLEVEREN</button>
 
-    <hr style="border: 2px solid #003366; margin: 40px 0;">
-    <h2>Dashboard voor de Collega (Peer Feedback)</h2>
+    <hr style="border: 2px solid #003366; margin: 50px 0;">
+    <h2>Dashboard voor de Collega</h2>
     <div id="klas-navigatie">
         <button class="nav-btn" onclick="loadResults('Delta')">Delta</button>
         <button class="nav-btn" onclick="loadResults('Echo')">Echo</button>
@@ -67,7 +78,7 @@
         <button class="nav-btn" onclick="loadResults('Lima')">Lima</button>
         <button class="nav-btn" onclick="loadResults('Mike')">Mike</button>
     </div>
-    <div id="results" style="margin-top: 20px;">Kies een klas om inzendingen te bekijken...</div>
+    <div id="results" style="margin-top: 25px;">Kies een klas...</div>
 </div>
 
 <script type="module">
@@ -87,100 +98,91 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Deel 1: Tabel (Trappen van vergelijking)
+    // DEEL 1
     const t1 = document.getElementById('t1-tabel');
     const basis = [["goed","beter","best"],["veel","meer","meest"],["weinig","minder","minst"],["druk","drukker","drukst"]];
     t1.innerHTML = "<tr><th>Stellend</th><th>Vergrotend</th><th>Overtreffend</th></tr>";
     for(let i=0; i<20; i++){
-        let w = basis[i % basis.length];
-        let f = i % 3;
-        t1.innerHTML += `<tr>
-            <td>${f==0?`<span class="fixed-val">${w[0]}</span>`:`<input type="text" class="d1-in">`}</td>
-            <td>${f==1?`<span class="fixed-val">${w[1]}</span>`:`<input type="text" class="d1-in">`}</td>
-            <td>${f==2?`<span class="fixed-val">${w[2]}</span>`:`<input type="text" class="d1-in">`}</td>
-        </tr>`;
+        let w = basis[i % basis.length]; let f = i % 3;
+        t1.innerHTML += `<tr><td>${f==0?`<span class="fixed-val">${w[0]}</span>`:`<input type="text" class="d1-in" style="width:90%">`}</td><td>${f==1?`<span class="fixed-val">${w[1]}</span>`:`<input type="text" class="d1-in" style="width:90%">`}</td><td>${f==2?`<span class="fixed-val">${w[2]}</span>`:`<input type="text" class="d1-in" style="width:90%">`}</td></tr>`;
     }
 
-    // Deel 2: Variabele opdrachten
-    const opdrachtenPool = [
-        "Stam: 'beton' + 'het paaltje'", "Vorm: 'duidelijk' + 'het spoor'", 
-        "Vergelijking: 'snel' + 'dan'", "Stam: 'nylon' + 'het koord'", 
-        "Vergelijking: 'goed' + 'als'"
+    // DEEL 2
+    const d2Data = [
+        { s: "De agenten dragen een", e: "vest.", label: "kevlar" },
+        { s: "Het", e: "schot geeft dekking.", label: "hout" },
+        { s: "Deze melding is", e: "dan de vorige.", label: "gevaarlijk" },
+        { s: "Wij zien een", e: "hek.", label: "ijzer" },
+        { s: "Er ligt veel", e: "afval.", label: "plastic" },
+        { s: "Het", e: "vizier is omlaag.", label: "donker" },
+        { s: "Agent B is net", e: "als agent A.", label: "alert" },
+        { s: "Er zit een", e: "touw om de paal.", label: "dik" },
+        { s: "Het", e: "blok ligt daar.", label: "beton" },
+        { s: "De weg is", e: "dan de straat.", label: "druk" },
+        { s: "Ik zie een", e: "koord.", label: "nylon" },
+        { s: "Het", e: "signalement klopt niet.", label: "onduidelijk" },
+        { s: "De dader was", e: "dan de politie.", label: "snel" },
+        { s: "Er is een", e: "bloedspoor.", label: "vers" },
+        { s: "Het", e: "hekwerk is oud.", label: "roestig" }
     ];
-    const shuffled = opdrachtenPool.sort(() => 0.5 - Math.random());
     const d2Cont = document.getElementById('d2-container');
-    shuffled.forEach((o, i) => {
-        d2Cont.innerHTML += `<div class="opdracht-rij"><div class="num">${i+1}</div><input type="text" id="d2_${i}" placeholder="Noteer zin met: ${o}"></div>`;
+    d2Data.forEach((item, i) => {
+        d2Cont.innerHTML += `<div class="opdracht-rij"><div class="num">${i+1}</div><div style="flex-grow:1;">${item.s} <input type="text" id="d2_${i}" class="invulveld-kort" placeholder="${item.label}"> ${item.e}</div></div>`;
     });
 
-    // Deel 3: 15 Zinnen
-    const d3Data = [
-        { q: "De collega's dragen een (kevlar)", post: "vest voor hun veiligheid." },
-        { q: "Het (hout) schot dient als dekking.", post: "" },
-        { q: "Deze situatie is (gevaarlijk) dan gisteren.", post: "" },
-        { q: "Wij zien een (ijzer) hek op de afbeelding.", post: "" },
-        { q: "Op de grond ligt veel (plastic) afval.", post: "" },
-        { q: "Het (donker) vizier is naar beneden geklapt.", post: "" },
-        { q: "De agent rechts is net (alert) als de ander.", post: "" },
-        { q: "Er is een (dik) touw zichtbaar om de paal.", post: "" },
-        { q: "Het (beton) blok ligt in de buurt van het hek.", post: "" },
-        { q: "De situatie ter plaatse is (druk) dan normaal.", post: "" },
-        { q: "Wij vonden een (nylon) koord bij het bewijsmateriaal.", post: "" },
-        { q: "Het (onduidelijk) signalement vertraagde de zoektocht.", post: "" },
-        { q: "De verdachte was (snel) dan de collega.", target: "sneller dan" },
-        { q: "Ik zag een (vers) spoor op de zanderige ondergrond.", post: "" },
-        { q: "Het (roestig) hekwerk blokkeert de toegang.", post: "" }
+    // DEEL 3: Eigen zinnen met Basiswoorden
+    const poolD3 = [
+        "Bedenk een zin met: (beton) + paaltje",
+        "Bedenk een zin met: (goed) + als",
+        "Bedenk een zin met: (donker) + voertuig",
+        "Bedenk een zin met: (kevlar) + vest",
+        "Bedenk een zin met: (snel) + dan",
+        "Bedenk een zin met: (duidelijk) + spoor",
+        "Bedenk een zin met: (nylon) + koord",
+        "Bedenk een zin met: (gevaarlijk) + dan",
+        "Bedenk een zin met: (hout) + schutting",
+        "Bedenk een zin met: (plastic) + zakje",
+        "Bedenk een zin met: (veel) + dan",
+        "Bedenk een zin met: (onduidelijk) + verhaal",
+        "Bedenk een zin met: (ijzer) + staaf",
+        "Bedenk een zin met: (alert) + als",
+        "Bedenk een zin met: (zilver) + horloge"
     ];
-
     const d3Cont = document.getElementById('d3-container');
-    d3Data.forEach((item, i) => {
-        const label = item.q.match(/\(([^)]+)\)/)[1];
-        const tekstVoor = item.q.split('(')[0];
-        d3Cont.innerHTML += `<div class="opdracht-rij"><div class="num">${i+1}</div><span>${tekstVoor} <input type="text" id="d3_${i}" class="invulveld" placeholder="${label}"> ${item.post}</span></div>`;
+    poolD3.forEach((prompt, i) => {
+        d3Cont.innerHTML += `<div class="opdracht-rij"><div class="num">${i+1}</div><input type="text" id="d3_${i}" class="full-input" placeholder="${prompt}"></div>`;
     });
 
     window.checkAndSave = function() {
         const name = document.getElementById('firstName').value;
         const klas = document.getElementById('selectedClass').value;
         if(!name) return alert("Voer je naam in.");
-        
         const data = {
             student: name,
-            d2: shuffled.map((o, i) => ({ opdracht: o, antwoord: document.getElementById(`d2_${i}`).value })),
-            d3: d3Data.map((_, i) => document.getElementById(`d3_${i}`).value),
+            d2: d2Data.map((o, i) => `${o.s} [${document.getElementById(`d2_${i}`).value}] ${o.e}`),
+            d3: poolD3.map((p, i) => `Opdracht [${p}] -> Antwoord: ${document.getElementById(`d3_${i}`).value}`),
             timestamp: Date.now()
         };
-        
-        push(ref(db, 'lessen/' + klas), data).then(() => {
-            alert("Succesvol ingeleverd! Laat je werk nu beoordelen door een collega.");
-            location.reload();
-        });
+        push(ref(db, 'lessen/' + klas), data).then(() => { alert("Ingeleverd!"); location.reload(); });
     };
 
     window.loadResults = function(klas) {
         onValue(ref(db, 'lessen/' + klas), (snap) => {
-            const resDiv = document.getElementById('results');
-            resDiv.innerHTML = "";
-            const items = snap.val();
-            if(!items) return resDiv.innerHTML = "Geen inzendingen in klas " + klas;
-            
+            const resDiv = document.getElementById('results'); resDiv.innerHTML = "";
+            const items = snap.val(); if(!items) return resDiv.innerHTML = "Niets gevonden.";
             Object.keys(items).forEach(id => {
                 const it = items[id];
                 resDiv.innerHTML += `
                 <div class="res-card">
-                    <div class="card-header"><span>Inzender: ${it.student}</span> <span>${it.fb ? '✅ Beoordeeld' : '⏳ Openstaand'}</span></div>
+                    <div class="card-header">Inzender: ${it.student}</div>
                     <div class="card-body">
-                        <b>Zinnen Deel 3:</b><br>
-                        ${it.d3.map((z, i) => `${i+1}. ${z}`).join('<br>')}
-                        <hr>
-                        <b>Zinnen Deel 2 (Variabel):</b><br>
-                        ${it.d2.map(z => `Opdracht [${z.opdracht}] -> <i>${z.antwoord}</i>`).join('<br>')}
-                        <hr>
-                        <b>Feedback collega:</b> <span style="color:green;">${it.fb || 'Nog geen feedback'}</span>
+                        <b>Deel 2:</b><br>${it.d2.join(' | ')}<hr>
+                        <b>Deel 3:</b><br>${it.d3.join('<br>')}
                     </div>
                     <div class="fb-section">
-                        <textarea id="fbt-${id}" placeholder="Noteer kritische feedback op de stam/vorm-regels en vergelijkingen..."></textarea>
-                        <button onclick="saveFB('${klas}','${id}')" style="background:#003366; color:white; padding:8px; border:none; border-radius:4px; cursor:pointer;">Sla feedback op</button>
+                        <input type="checkbox" id="c1-${id}"> Stoffelijk | <input type="checkbox" id="c2-${id}"> Het-woord | <input type="checkbox" id="c3-${id}"> Vergelijking<br>
+                        <textarea id="fbt-${id}" style="margin-top:10px;" placeholder="Feedback..."></textarea>
+                        <button onclick="saveFB('${klas}','${id}')" style="width:100%; padding:10px; background:#003366; color:#fff; border:none; cursor:pointer;">Sla op</button>
                     </div>
                 </div>`;
             });
@@ -188,9 +190,9 @@
     };
 
     window.saveFB = function(k, id) {
-        const val = document.getElementById(`fbt-${id}`).value;
-        if(!val) return alert("Typ eerst feedback.");
-        update(ref(db, `lessen/${k}/${id}`), { fb: val }).then(() => alert("Feedback is opgeslagen."));
+        if(!document.getElementById(`c1-${id}`).checked || !document.getElementById(`c2-${id}`).checked || !document.getElementById(`c3-${id}`).checked) return alert("Vink alles aan!");
+        update(ref(db, `lessen/${k}/${id}`), { fb: document.getElementById(`fbt-${id}`).value });
+        alert("Opgeslagen!");
     };
 </script>
 </body>
