@@ -30,6 +30,7 @@
         .fb-section { background: #eef9f0; padding: 15px; border-top: 2px solid #28a745; }
         textarea { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; min-height: 80px; box-sizing: border-box; }
         .nav-btn { padding: 12px 20px; margin-right: 8px; cursor: pointer; background: #003366; color: white; border: none; border-radius: 4px; font-weight: bold; }
+        .btn-reset { background: #dc3545; color: white; border: none; padding: 12px 25px; cursor: pointer; border-radius: 4px; font-weight: bold; margin-top: 20px; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
         .fixed-val { background: #e7efff; font-weight: bold; padding: 8px; display: block; border-radius: 4px; }
@@ -42,7 +43,7 @@
 
     <div class="top-instruction">
         <b>STAPPENPLAN:</b><br>
-        1. <b>Deel 1:</b> Trappen van vergelijking.<br>
+        1. <b>Deel 1:</b> Trappen van vergelijking invullen.<br>
         2. <b>Deel 2:</b> Vul de juiste vorm in bij de zinnen over de afbeelding.<br>
         3. <b>Deel 3:</b> Bedenk zelf volledige zinnen met de gevraagde materialen of regels.
     </div>
@@ -78,12 +79,15 @@
         <button class="nav-btn" onclick="loadResults('Lima')">Lima</button>
         <button class="nav-btn" onclick="loadResults('Mike')">Mike</button>
     </div>
+    
+    <button class="btn-reset" onclick="resetKlas()">🗑️ GROTE RESETKNOP (WIS KLAS)</button>
+    
     <div id="results" style="margin-top: 25px;">Kies een klas...</div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCJ5of6K5MRFXMOiEqEyZxZbs1xoJtXuN8",
@@ -130,23 +134,13 @@
         d2Cont.innerHTML += `<div class="opdracht-rij"><div class="num">${i+1}</div><div style="flex-grow:1;">${item.s} <input type="text" id="d2_${i}" class="invulveld-kort" placeholder="${item.label}"> ${item.e}</div></div>`;
     });
 
-    // DEEL 3: Eigen zinnen met Basiswoorden
+    // DEEL 3
     const poolD3 = [
-        "Bedenk een zin met: (beton) + paaltje",
-        "Bedenk een zin met: (goed) + als",
-        "Bedenk een zin met: (donker) + voertuig",
-        "Bedenk een zin met: (kevlar) + vest",
-        "Bedenk een zin met: (snel) + dan",
-        "Bedenk een zin met: (duidelijk) + spoor",
-        "Bedenk een zin met: (nylon) + koord",
-        "Bedenk een zin met: (gevaarlijk) + dan",
-        "Bedenk een zin met: (hout) + schutting",
-        "Bedenk een zin met: (plastic) + zakje",
-        "Bedenk een zin met: (veel) + dan",
-        "Bedenk een zin met: (onduidelijk) + verhaal",
-        "Bedenk een zin met: (ijzer) + staaf",
-        "Bedenk een zin met: (alert) + als",
-        "Bedenk een zin met: (zilver) + horloge"
+        "Zin met: (beton) + paaltje", "Zin met: (goed) + als", "Zin met: (donker) + voertuig",
+        "Zin met: (kevlar) + vest", "Zin met: (snel) + dan", "Zin met: (duidelijk) + spoor",
+        "Zin met: (nylon) + koord", "Zin met: (gevaarlijk) + dan", "Zin met: (hout) + schutting",
+        "Zin met: (plastic) + zakje", "Zin met: (veel) + dan", "Zin met: (onduidelijk) + verhaal",
+        "Zin met: (ijzer) + staaf", "Zin met: (alert) + als", "Zin met: (zilver) + horloge"
     ];
     const d3Cont = document.getElementById('d3-container');
     poolD3.forEach((prompt, i) => {
@@ -169,20 +163,20 @@
     window.loadResults = function(klas) {
         onValue(ref(db, 'lessen/' + klas), (snap) => {
             const resDiv = document.getElementById('results'); resDiv.innerHTML = "";
-            const items = snap.val(); if(!items) return resDiv.innerHTML = "Niets gevonden.";
+            const items = snap.val(); if(!items) return resDiv.innerHTML = "Geen inzendingen gevonden voor klas " + klas;
             Object.keys(items).forEach(id => {
                 const it = items[id];
                 resDiv.innerHTML += `
                 <div class="res-card">
-                    <div class="card-header">Inzender: ${it.student}</div>
-                    <div class="card-body">
+                    <div class="card-header">${it.student}</div>
+                    <div class="card-body" style="padding:15px;">
                         <b>Deel 2:</b><br>${it.d2.join(' | ')}<hr>
                         <b>Deel 3:</b><br>${it.d3.join('<br>')}
                     </div>
                     <div class="fb-section">
                         <input type="checkbox" id="c1-${id}"> Stoffelijk | <input type="checkbox" id="c2-${id}"> Het-woord | <input type="checkbox" id="c3-${id}"> Vergelijking<br>
-                        <textarea id="fbt-${id}" style="margin-top:10px;" placeholder="Feedback..."></textarea>
-                        <button onclick="saveFB('${klas}','${id}')" style="width:100%; padding:10px; background:#003366; color:#fff; border:none; cursor:pointer;">Sla op</button>
+                        <textarea id="fbt-${id}" style="margin-top:10px;" placeholder="Typ hier de feedback..."></textarea>
+                        <button onclick="saveFB('${klas}','${id}')" style="width:100%; padding:10px; background:#003366; color:#fff; border:none; border-radius:4px; cursor:pointer;">Sla feedback op</button>
                     </div>
                 </div>`;
             });
@@ -190,9 +184,19 @@
     };
 
     window.saveFB = function(k, id) {
-        if(!document.getElementById(`c1-${id}`).checked || !document.getElementById(`c2-${id}`).checked || !document.getElementById(`c3-${id}`).checked) return alert("Vink alles aan!");
+        if(!document.getElementById(`c1-${id}`).checked || !document.getElementById(`c2-${id}`).checked || !document.getElementById(`c3-${id}`).checked) return alert("Loop alle vinkjes na!");
         update(ref(db, `lessen/${k}/${id}`), { fb: document.getElementById(`fbt-${id}`).value });
-        alert("Opgeslagen!");
+        alert("Feedback opgeslagen!");
+    };
+
+    window.resetKlas = function() {
+        const klas = document.getElementById('selectedClass').value;
+        if (confirm("WEET JE HET ZEKER? Alle resultaten van klas " + klas + " worden nu definitief gewist.")) {
+            remove(ref(db, 'lessen/' + klas)).then(() => {
+                alert("Klas " + klas + " is gereset.");
+                location.reload();
+            });
+        }
     };
 </script>
 </body>
