@@ -102,7 +102,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // DEEL 1
+    // DEEL 1: Trappen van vergelijking (Dynamische tabel)
     const t1 = document.getElementById('t1-tabel');
     const basis = [["goed","beter","best"],["veel","meer","meest"],["weinig","minder","minst"],["druk","drukker","drukst"]];
     t1.innerHTML = "<tr><th>Stellend</th><th>Vergrotend</th><th>Overtreffend</th></tr>";
@@ -111,18 +111,18 @@
         t1.innerHTML += `<tr><td>${f==0?`<span class="fixed-val">${w[0]}</span>`:`<input type="text" class="d1-in" style="width:90%">`}</td><td>${f==1?`<span class="fixed-val">${w[1]}</span>`:`<input type="text" class="d1-in" style="width:90%">`}</td><td>${f==2?`<span class="fixed-val">${w[2]}</span>`:`<input type="text" class="d1-in" style="width:90%">`}</td></tr>`;
     }
 
-    // DEEL 2
+    // DEEL 2: Zinnen bij afbeelding (DUPLICATEN VERWIJDERD)
     const d2Data = [
         { s: "De agenten dragen een", e: "vest.", label: "kevlar" },
         { s: "Het", e: "schot geeft dekking.", label: "hout" },
-        { s: "Deze melding is", e: "dan de vorige.", label: "gevaarlijk" },
+        { s: "Deze melding is", e: "dan de vorige.", label: "belangrijk" }, // Vervanging voor gevaarlijk
         { s: "Wij zien een", e: "hek.", label: "ijzer" },
         { s: "Er ligt veel", e: "afval.", label: "plastic" },
         { s: "Het", e: "vizier is omlaag.", label: "donker" },
         { s: "Agent B is net", e: "als agent A.", label: "alert" },
         { s: "Er zit een", e: "touw om de paal.", label: "dik" },
         { s: "Het", e: "blok ligt daar.", label: "beton" },
-        { s: "De weg is", e: "dan de straat.", label: "druk" },
+        { s: "De weg is", e: "dan de straat.", label: "breed" }, // Vervanging voor druk
         { s: "Ik zie een", e: "koord.", label: "nylon" },
         { s: "Het", e: "signalement klopt niet.", label: "onduidelijk" },
         { s: "De dader was", e: "dan de politie.", label: "snel" },
@@ -134,19 +134,21 @@
         d2Cont.innerHTML += `<div class="opdracht-rij"><div class="num">${i+1}</div><div style="flex-grow:1;">${item.s} <input type="text" id="d2_${i}" class="invulveld-kort" placeholder="${item.label}"> ${item.e}</div></div>`;
     });
 
-    // DEEL 3
+    // DEEL 3: Vrije zinnen (DUPLICATEN VERWIJDERD)
     const poolD3 = [
         "Zin met: (beton) + paaltje", "Zin met: (goed) + als", "Zin met: (donker) + voertuig",
         "Zin met: (kevlar) + vest", "Zin met: (snel) + dan", "Zin met: (duidelijk) + spoor",
-        "Zin met: (nylon) + koord", "Zin met: (gevaarlijk) + dan", "Zin met: (hout) + schutting",
-        "Zin met: (plastic) + zakje", "Zin met: (veel) + dan", "Zin met: (onduidelijk) + verhaal",
-        "Zin met: (ijzer) + staaf", "Zin met: (alert) + als", "Zin met: (zilver) + horloge"
+        "Zin met: (nylon) + koord", "Zin met: (kritiek) + situatie", // Vervanging voor gevaarlijk
+        "Zin met: (hout) + schutting",
+        "Zin met: (plastic) + zakje", "Zin met: (veel) + dan", "Zin met: (stalen) + staaf", // Vervanging voor onduidelijk
+        "Zin met: (ijzer) + staaf", "Zin met: (groot) + als", "Zin met: (zilver) + horloge" // Vervanging voor alert
     ];
     const d3Cont = document.getElementById('d3-container');
     poolD3.forEach((prompt, i) => {
         d3Cont.innerHTML += `<div class="opdracht-rij"><div class="num">${i+1}</div><input type="text" id="d3_${i}" class="full-input" placeholder="${prompt}"></div>`;
     });
 
+    // FUNCTIONALITEITEN: OPSLAAN EN DASHBOARD
     window.checkAndSave = function() {
         const name = document.getElementById('firstName').value;
         const klas = document.getElementById('selectedClass').value;
